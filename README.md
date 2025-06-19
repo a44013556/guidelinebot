@@ -1,2 +1,1 @@
-# guidelinebot
 for the guidelinebot
