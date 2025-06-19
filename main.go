@@ -1,15 +1,18 @@
 package main
 
 import (
-	"linebot-gin/config"
-	"linebot-gin/models"
+	"guidelinebot/config"
+	"guidelinebot/models"
 	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	_ = godotenv.Load()
+
 	config.InitDB()
 	config.DB.AutoMigrate(&models.Booking{})
 
