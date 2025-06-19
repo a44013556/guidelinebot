@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
 
 	config.InitDB()
 	config.DB.AutoMigrate(&models.Booking{})
