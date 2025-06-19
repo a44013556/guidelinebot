@@ -1,25 +1,19 @@
-
 FROM golang:1.21 AS builder
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
-RUN go mod download
-
+RUN go mod tidy
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o main .
+RUN go build -o main .
 
-FROM alpine:latest
+FROM debian:bullseye-slim
 
-RUN apk --no-cache add ca-certificates
-
-RUN adduser -D appuser
-USER appuser
-
-WORKDIR /home/appuser
+WORKDIR /app
 
 COPY --from=builder /app/main .
 
+# 執行
 CMD ["./main"]
