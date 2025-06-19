@@ -1,7 +1,7 @@
 package models
 
 type Booking struct {
-	ID   int
+	ID   uint `gorm:"primaryKey"`
 	Name string
 	Date string
 }

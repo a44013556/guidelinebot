@@ -1,1 +1,3 @@
-for the guidelinebot
+//To install air
+
+go install github.com/air-verse/air@latest
