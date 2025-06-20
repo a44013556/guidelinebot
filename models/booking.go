@@ -9,7 +9,7 @@ type Booking struct {
 	Name       string
 	Date       string
 	People     int
-	Areas      []Japanarea `gorm:"many2many:booking_areas;"`
-	CancelDate *time.Time `gorm:"column:cancel_date"`
+	Areas      []JapanArea `gorm:"many2many:booking_areas;"`
+	CancelDate *time.Time  `gorm:"column:cancel_date"`
 	BaseModel
 }

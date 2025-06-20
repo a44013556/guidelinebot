@@ -131,7 +131,7 @@ func replyReginOptions(replyToken string) {
 	replyToLine(payload, "replyReginOptions")
 }
 
-func replyTheTouristSpot(replyToken string, area models.Japanarea) {
+func replyTheTouristSpot(replyToken string, area models.JapanArea) {
 	spots, err := models.GetAreaSpotListByAreaId(config.DB, int64(area.ID))
 	if err != nil {
 		log.Println("DB error:", err)

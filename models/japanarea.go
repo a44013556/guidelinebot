@@ -8,9 +8,9 @@ type JapanArea struct {
 	BaseModel
 }
 
-func CheckJapanAreaExists(db *gorm.DB, name string) (*Japanarea, error) {
-	var area Japanarea
-	if err := db.Model(&Japanarea{}).Where("name = ?", name).First(&area).Error; err != nil {
+func CheckJapanAreaExists(db *gorm.DB, name string) (*JapanArea, error) {
+	var area JapanArea
+	if err := db.Model(&JapanArea{}).Where("name = ?", name).First(&area).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
 		}
@@ -21,7 +21,7 @@ func CheckJapanAreaExists(db *gorm.DB, name string) (*Japanarea, error) {
 
 func GetAllJapanAreaName(db *gorm.DB) ([]string, error) {
 	var names []string
-	if err := db.Model(&Japanarea{}).Pluck("name", &names).Error; err != nil {
+	if err := db.Model(&JapanArea{}).Pluck("name", &names).Error; err != nil {
 		return nil, err
 	}
 	return names, nil
