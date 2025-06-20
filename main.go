@@ -4,6 +4,7 @@ import (
 	"guidelinebot/config"
 	"guidelinebot/handlers"
 	"guidelinebot/models"
+	"log"
 	"net/http"
 	"os"
 
@@ -13,8 +14,9 @@ import (
 func main() {
 
 	config.InitDB()
-	config.DB.AutoMigrate(&models.Booking{}, &models.JapanArea{}, &models.AreaSpot{})
-
+	if err := config.DB.AutoMigrate(&models.Booking{}, &models.JapanArea{}, &models.AreaSpot{}); err != nil {
+		log.Fatalf("AutoMigrate error: %v", err)
+	}
 	r := gin.Default()
 
 	r.GET("/ping", func(c *gin.Context) {
