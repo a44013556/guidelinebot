@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"guidelinebot/config"
+	"guidelinebot/models"
 	"io"
 	"log"
 	"net/http"
@@ -45,8 +46,8 @@ type QuickReply struct {
 	Items []QuickReplyItem `json:"items"`
 }
 type Message struct {
-	Type       string     `json:"type"`
-	Text       string     `json:"text"`
+	Type       string      `json:"type"`
+	Text       string      `json:"text"`
 	QuickReply *QuickReply `json:"quickReply,omitempty"`
 }
 type Payload struct {
@@ -69,14 +70,25 @@ func LineWebhookHandler(c *gin.Context) {
 	}
 
 	for _, event := range req.Events {
+		replyToken := event.ReplyToken
 		if event.Type == "message" && event.Message.Type == "text" {
-			switch event.Message.Text {
+			text := event.Message.Text
+			switch text {
 			case "查詢行程":
-				replyReginOptions(event.ReplyToken)
-			case "北海道", "東北", "關東", "中部", "關西", "中國", "四國", "九州", "沖繩":
-				replyToCheckTourist(event.ReplyToken, fmt.Sprintf("這是 %s 的行程資訊！\n1. 景點A\n2. 景點B", event.Message.Text))
+				replyReginOptions(replyToken)
 			default:
-				replyToCheckTourist(event.ReplyToken, "請輸入「查詢行程」 或是 日本地域")
+				exist, err := models.CheckJapanAreaExists(config.DB, text)
+				if err != nil {
+					log.Println("DB error:", err)
+					replyToCheckTourist(replyToken, "系統錯誤, 請稍後再試")
+					return
+				}
+
+				if exist {
+					replyToCheckTourist(replyToken, fmt.Sprintf("這是 %s 的行程資訊！\n1. 景點A\n2. 景點B", text))
+				} else {
+					replyToCheckTourist(replyToken, "請輸入「查詢行程」 或是 日本地域")
+				}
 			}
 
 		}
@@ -86,7 +98,12 @@ func LineWebhookHandler(c *gin.Context) {
 }
 
 func replyReginOptions(replyToken string) {
-	regions := []string{"北海道", "東北", "關東", "中部", "關西", "中國", "四國", "九州", "沖繩"}
+	regions, err := models.GetAllJapanAreaName(config.DB)
+	if err != nil {
+		log.Println("DB error:", err)
+		replyToCheckTourist(replyToken, "系統錯誤, 請稍後再試")
+		return
+	}
 	var items []QuickReplyItem
 	for _, region := range regions {
 		items = append(items, QuickReplyItem{
@@ -112,6 +129,10 @@ func replyReginOptions(replyToken string) {
 		},
 	}
 	replyToLine(payload, "replyReginOptions")
+}
+
+func replyTheTouristSpot(replyToken string, message string) {
+
 }
 
 func replyToCheckTourist(replyToken string, message string) {
