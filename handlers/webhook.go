@@ -36,7 +36,7 @@ func LineWebhookHandler(c *gin.Context) {
 		c.Status((http.StatusInternalServerError))
 		return
 	}
-	log.Println("Webhook Raw Body:", string(body))
+
 	var req WebhookRequest
 	if err := json.Unmarshal(body, &req); err != nil {
 		log.Println("Invaild Json:", err)
@@ -55,7 +55,7 @@ func LineWebhookHandler(c *gin.Context) {
 func replyToLine(replyToken string, message string) {
 	endpoint := "https://api.line.me/v2/bot/message/reply"
 	accessToken := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
-	log.Println("AccessToken:", accessToken)
+	
 	payload := map[string]interface{}{
 		"replayToken": replyToken,
 		"message": []map[string]string{
@@ -65,9 +65,9 @@ func replyToLine(replyToken string, message string) {
 			},
 		},
 	}
-
+	log.Println("payload:", payload)
 	jsonBody, _ := json.Marshal(payload)
-
+	log.Println("jsonBody:", payload)
 	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonBody))
 
 	req.Header.Set("Content-Type", "application/json")
