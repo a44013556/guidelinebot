@@ -105,7 +105,7 @@ func replyReginOptions(replyToken string) {
 			{
 				Type: "text",
 				Text: "請選擇地區:",
-				QuickReply: QuickReply{
+				QuickReply: &QuickReply{
 					Items: items,
 				},
 			},
