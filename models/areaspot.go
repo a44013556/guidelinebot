@@ -6,7 +6,7 @@ type AreaSpot struct {
 	ID           uint `gorm:"primaryKey"`
 	Name         string
 	AreaId       uint
-	Area         JapanArea `gorm:"foreignKey:AreaID"`
+	Area         JapanArea `gorm:"foreignKey:AreaId"`
 	VisitedTimes uint
 	Rating       float64
 	BaseModel
