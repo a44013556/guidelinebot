@@ -14,7 +14,7 @@ type AreaSpot struct {
 
 func GetAreaSpotListByAreaId(db *gorm.DB, areaId int64) ([]AreaSpot, error) {
 	var spots []AreaSpot
-	if err := db.Model(&AreaSpot{}).Where("AreaId = ?", areaId).Limit(10).Find(&spots).Error; err != nil {
+	if err := db.Model(&AreaSpot{}).Where("area_id = ?", areaId).Limit(10).Find(&spots).Error; err != nil {
 		return nil, err
 	}
 	return spots, nil
