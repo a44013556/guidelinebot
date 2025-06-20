@@ -13,14 +13,14 @@ import (
 func main() {
 
 	config.InitDB()
-	config.DB.AutoMigrate(&models.Booking{})
+	config.DB.AutoMigrate(&models.Booking{}, &models.Japanarea{})
 
 	r := gin.Default()
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
-	r.POST("/webhook", handlers.LineWebhookHandler)
+	r.POST("/linewebhook", handlers.LineWebhookHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
