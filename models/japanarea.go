@@ -2,7 +2,7 @@ package models
 
 import "gorm.io/gorm"
 
-type Japanarea struct {
+type JapanArea struct {
 	ID   uint `gorm:"primaryKey"`
 	Name string
 	BaseModel
