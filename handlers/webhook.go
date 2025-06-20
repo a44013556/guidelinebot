@@ -71,7 +71,7 @@ func replyToLine(replyToken string, message string) {
 	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonBody))
 
 	req.Header.Set("Context-Type", "application/json")
-	req.Header.Set("Authorization", "bearer "+accessToken)
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
