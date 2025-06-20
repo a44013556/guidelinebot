@@ -58,7 +58,7 @@ func replyToLine(replyToken string, message string) {
 	
 	payload := map[string]interface{}{
 		"replayToken": replyToken,
-		"message": []map[string]string{
+		"messages": []map[string]string{
 			{
 				"type": "text",
 				"text": message,
