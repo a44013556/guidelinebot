@@ -77,15 +77,15 @@ func LineWebhookHandler(c *gin.Context) {
 			case "查詢行程":
 				replyReginOptions(replyToken)
 			default:
-				exist, err := models.CheckJapanAreaExists(config.DB, text)
+				area, err := models.CheckJapanAreaExists(config.DB, text)
 				if err != nil {
 					log.Println("DB error:", err)
 					replyToCheckTourist(replyToken, "系統錯誤, 請稍後再試")
 					return
 				}
 
-				if exist {
-					replyToCheckTourist(replyToken, fmt.Sprintf("這是 %s 的行程資訊！\n1. 景點A\n2. 景點B", text))
+				if area != nil {
+					replyTheTouristSpot(replyToken, *area)
 				} else {
 					replyToCheckTourist(replyToken, "請輸入「查詢行程」 或是 日本地域")
 				}
@@ -131,8 +131,29 @@ func replyReginOptions(replyToken string) {
 	replyToLine(payload, "replyReginOptions")
 }
 
-func replyTheTouristSpot(replyToken string, message string) {
+func replyTheTouristSpot(replyToken string, area models.Japanarea) {
+	spots, err := models.GetAreaSpotListByAreaId(config.DB, int64(area.ID))
+	if err != nil {
+		log.Println("DB error:", err)
+		replyToCheckTourist(replyToken, "系統錯誤, 請稍後再試")
+		return
+	}
+	message := fmt.Sprintf("這是 %s 的行程資訊！\n", area.Name)
+	for i, spot := range spots {
+		message += fmt.Sprintf("%d.%s\n", i+1, spot.Name)
+	}
 
+	payload := Payload{
+		ReplyToken: replyToken,
+		Messages: []Message{
+			{
+				Type: "text",
+				Text: message,
+			},
+		},
+	}
+
+	replyToLine(payload, "replyTheTouristSpot")
 }
 
 func replyToCheckTourist(replyToken string, message string) {
