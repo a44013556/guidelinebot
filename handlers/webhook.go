@@ -57,7 +57,7 @@ func replyToLine(replyToken string, message string) {
 	accessToken := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
 	
 	payload := map[string]interface{}{
-		"replayToken": replyToken,
+		"replyToken": replyToken,
 		"messages": []map[string]string{
 			{
 				"type": "text",
