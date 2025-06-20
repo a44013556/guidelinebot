@@ -47,7 +47,7 @@ type QuickReply struct {
 type Message struct {
 	Type       string     `json:"type"`
 	Text       string     `json:"text"`
-	QuickReply QuickReply `json:"quickReply,omitempty"`
+	QuickReply *QuickReply `json:"quickReply,omitempty"`
 }
 type Payload struct {
 	ReplyToken string    `json:"replyToken"`
