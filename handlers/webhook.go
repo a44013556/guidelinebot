@@ -82,6 +82,6 @@ func replyToLine(replyToken string, message string) {
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
-	log.Println("Line respone:", respBody)
+	log.Println("Line respone:", string(respBody))
 
 }
