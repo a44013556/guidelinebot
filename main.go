@@ -13,7 +13,7 @@ import (
 func main() {
 
 	config.InitDB()
-	config.DB.AutoMigrate(&models.Booking{}, &models.Japanarea{})
+	config.DB.AutoMigrate(&models.Booking{}, &models.JapanArea{}, &models.AreaSpot{})
 
 	r := gin.Default()
 
