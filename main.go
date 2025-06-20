@@ -2,6 +2,7 @@ package main
 
 import (
 	"guidelinebot/config"
+	"guidelinebot/handlers"
 	"guidelinebot/models"
 	"net/http"
 	"os"
@@ -19,6 +20,7 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
+	r.POST("/webhook", handlers.LineWebhookHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
