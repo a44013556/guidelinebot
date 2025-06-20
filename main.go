@@ -14,8 +14,6 @@ import (
 func main() {
 
 	config.InitDB()
-	config.DB.Migrator().DropTable("booking_areas")
-	config.DB.Migrator().DropTable("japanareas")
 	if err := config.DB.AutoMigrate(&models.Booking{}, &models.JapanArea{}, &models.AreaSpot{}); err != nil {
 		log.Fatalf("AutoMigrate error: %v", err)
 	}
