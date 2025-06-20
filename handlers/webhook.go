@@ -3,6 +3,8 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"guidelinebot/config"
 	"io"
 	"log"
 	"net/http"
@@ -26,7 +28,30 @@ type Event struct {
 }
 
 type WebhookRequest struct {
-	Events []Event `json:"evnets`
+	Events []Event `json:"events`
+}
+
+type Action struct {
+	Type  string `json:"type"`
+	Label string `json:"label"`
+	Text  string `json:"text"`
+}
+type QuickReplyItem struct {
+	Type   string `json:"type"`
+	Action Action `json:"action"`
+}
+
+type QuickReply struct {
+	Items []QuickReplyItem `json:"items"`
+}
+type Message struct {
+	Type       string     `json:"type"`
+	Text       string     `json:"text"`
+	QuickReply QuickReply `json:"quickReply"`
+}
+type Payload struct {
+	ReplyToken string    `json:"replyToken"`
+	Messages   []Message `json:"messages"`
 }
 
 func LineWebhookHandler(c *gin.Context) {
@@ -45,43 +70,81 @@ func LineWebhookHandler(c *gin.Context) {
 
 	for _, event := range req.Events {
 		if event.Type == "message" && event.Message.Type == "text" {
-			replyToLine(event.ReplyToken, "You just said:"+event.Message.Text)
+			switch event.Message.Text {
+			case "查詢行程":
+				replyReginOptions(event.ReplyToken)
+			case "北海道", "東北", "關東", "中部", "關西", "中國", "四國", "九州", "沖繩":
+				replyToCheckTourist(event.ReplyToken, fmt.Sprintf("這是 %s 的行程資訊！\n1. 景點A\n2. 景點B", event.Message.Text))
+			default:
+				replyToCheckTourist(event.ReplyToken, "請輸入「查詢行程」 或是 日本地域")
+			}
+
 		}
 	}
 
 	c.Status((http.StatusOK))
 }
 
-func replyToLine(replyToken string, message string) {
-	endpoint := "https://api.line.me/v2/bot/message/reply"
-	accessToken := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
-	
-	payload := map[string]interface{}{
-		"replyToken": replyToken,
-		"messages": []map[string]string{
+func replyReginOptions(replyToken string) {
+	regions := []string{"北海道", "東北", "關東", "中部", "關西", "中國", "四國", "九州", "沖繩"}
+	var items []QuickReplyItem
+	for _, region := range regions {
+		items = append(items, QuickReplyItem{
+			Type: "action",
+			Action: Action{
+				Type:  "message",
+				Label: region,
+				Text:  region,
+			},
+		})
+	}
+
+	payload := Payload{
+		ReplyToken: replyToken,
+		Messages: []Message{
 			{
-				"type": "text",
-				"text": message,
+				Type: "text",
+				Text: "請選擇地區:",
+				QuickReply: QuickReply{
+					Items: items,
+				},
 			},
 		},
 	}
-	log.Println("payload:", payload)
-	jsonBody, _ := json.Marshal(payload)
-	log.Println("jsonBody:", payload)
-	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer(jsonBody))
+	replyToLine(payload, "replyReginOptions")
+}
 
+func replyToCheckTourist(replyToken string, message string) {
+
+	payload := Payload{
+		ReplyToken: replyToken,
+		Messages: []Message{
+			{
+				Type: "text",
+				Text: message,
+			},
+		},
+	}
+
+	replyToLine(payload, "replyToCheckTourist")
+}
+
+func replyToLine(payload Payload, failfuncname string) {
+	jsonBody, _ := json.Marshal(payload)
+
+	req, _ := http.NewRequest("POST", config.LineReplyEndpoint, bytes.NewBuffer(jsonBody))
+	accessToken := os.Getenv("LINE_CHANNEL_ACCESS_TOKEN")
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+accessToken)
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println("Send Message Fail:", err)
+		log.Println(failfuncname, " Fail:", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	respBody, _ := io.ReadAll(resp.Body)
 	log.Println("Line respone:", string(respBody))
-
 }
