@@ -2,7 +2,7 @@ package main
 
 import (
 	"guidelinebot/config"
-	"guidelinebot/handlers"
+	"guidelinebot/handlers/linebot"
 	"guidelinebot/models"
 	"log"
 	"net/http"
@@ -13,8 +13,11 @@ import (
 
 func main() {
 
-	config.InitDB()
-	if err := config.DB.AutoMigrate(&models.Booking{}, &models.JapanArea{}, &models.AreaSpot{}); err != nil {
+	cfg, err := config.Init()
+	if err != nil {
+		log.Fatal("Init Fail:", err)
+	}
+	if err := cfg.DB.AutoMigrate(&models.Booking{}, &models.JapanArea{}, &models.AreaSpot{}); err != nil {
 		log.Fatalf("AutoMigrate error: %v", err)
 	}
 	r := gin.Default()
@@ -22,7 +25,8 @@ func main() {
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "pong"})
 	})
-	r.POST("/linewebhook", handlers.LineWebhookHandler)
+	lineHandler := linebot.NewHandler(cfg.DB, cfg.RDB)
+	r.POST("/linewebhook", lineHandler.LineWebhookHandler)
 
 	port := os.Getenv("PORT")
 	if port == "" {
