@@ -1,4 +1,4 @@
-package handlers
+package linebot
 
 import (
 	"bytes"
@@ -55,7 +55,7 @@ type Payload struct {
 	Messages   []Message `json:"messages"`
 }
 
-func LineWebhookHandler(c *gin.Context) {
+func (h *LineBotHandler) LineWebhookHandler(c *gin.Context) {
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
 		log.Println("Red Request Fail:", err)
@@ -77,9 +77,9 @@ func LineWebhookHandler(c *gin.Context) {
 			text := event.Message.Text
 			switch text {
 			case "查詢行程":
-				replyReginOptions(replyToken)
+				h.replyReginOptions(replyToken)
 			default:
-				area, err := models.CheckJapanAreaExists(config.DB, text)
+				area, err := models.CheckJapanAreaExists(h.DB, text)
 				if err != nil {
 					log.Println("DB error:", err)
 					replyToCheckTourist(replyToken, "系統錯誤, 請稍後再試")
@@ -87,7 +87,7 @@ func LineWebhookHandler(c *gin.Context) {
 				}
 
 				if area != nil {
-					replyTheTouristSpot(replyToken, *area)
+					h.replyTheTouristSpot(replyToken, *area)
 				} else {
 					replyToCheckTourist(replyToken, "請輸入「查詢行程」 或是 日本地域")
 				}
@@ -99,8 +99,8 @@ func LineWebhookHandler(c *gin.Context) {
 	c.Status((http.StatusOK))
 }
 
-func replyReginOptions(replyToken string) {
-	regions, err := models.GetAllJapanAreaName(config.DB)
+func (h *LineBotHandler) replyReginOptions(replyToken string) {
+	regions, err := models.GetAllJapanAreaName(h.DB)
 	if err != nil {
 		log.Println("DB error:", err)
 		replyToCheckTourist(replyToken, "系統錯誤, 請稍後再試")
@@ -133,8 +133,8 @@ func replyReginOptions(replyToken string) {
 	replyToLine(payload, "replyReginOptions")
 }
 
-func replyTheTouristSpot(replyToken string, area models.JapanArea) {
-	spots, err := models.GetAreaSpotListByAreaId(config.DB, int64(area.ID))
+func (h *LineBotHandler) replyTheTouristSpot(replyToken string, area models.JapanArea) {
+	spots, err := models.GetAreaSpotListByAreaId(h.DB, int64(area.ID))
 	if err != nil {
 		log.Println("DB error:", err)
 		replyToCheckTourist(replyToken, "系統錯誤, 請稍後再試")
