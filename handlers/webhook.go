@@ -70,6 +70,8 @@ func LineWebhookHandler(c *gin.Context) {
 	}
 
 	for _, event := range req.Events {
+		userId := event.Source.UserId
+		log.Println(userId)
 		replyToken := event.ReplyToken
 		if event.Type == "message" && event.Message.Type == "text" {
 			text := event.Message.Text
